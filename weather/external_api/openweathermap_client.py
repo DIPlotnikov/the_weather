@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import datetime
 from pathlib import Path
 
 import django
@@ -16,8 +17,6 @@ from external_api.decorators import cached_data
 
 logger = logging.getLogger('openweathermap_logger')
 dotenv.load_dotenv()
-
-from django.core.cache import cache
 
 
 class OpenWeatherClientError(Exception):
@@ -85,8 +84,8 @@ class OpenWeatherClient:
 
             forecast_list = data["list"]
             forecast = {day['dt_txt'].split()[0]: {
-                'temp_max': day['main']['temp_max'],
-                'temp_min': day['main']['temp_min']
+                'min_temperature': day['main']['temp_min'],
+                'max_temperature': day['main']['temp_max'],
             }
                 for day in forecast_list
             }
@@ -97,8 +96,24 @@ class OpenWeatherClient:
             logger.error(e)
             raise OpenWeatherClientError("Ошибка соединения") from e
 
+    def get_forecast_by_date(self, city: str, date: datetime) -> dict:
+        """
+        Получение прогноза погоды на указанный город на указанную дату
+
+        :param city: str
+        :param date: дата в формате dd.mm.yyyy
+
+        :return: dict: {
+                        "min_temperature": 11.1,
+                        "max_temperature": 24.5
+                        }
+        """
+        forecast_data = self.get_forecast(city)
+        return forecast_data.get(str(date))
+
 
 if __name__ == '__main__':
     client = OpenWeatherClient()
     print(client.get_current_weather("London"))
     print(client.get_forecast("Moscow"))
+    print(client.get_forecast_by_date("Moscow", "2025-06-10"))
