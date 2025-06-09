@@ -1,17 +1,9 @@
-import os
-import sys
-from datetime import datetime
-from pathlib import Path
-
-import django
-import requests
-import dotenv
 import logging
+import os
+from datetime import datetime
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'weather.settings')
-django.setup()
+import dotenv
+import requests
 
 from external_api.decorators import cached_data
 
@@ -40,7 +32,7 @@ class OpenWeatherClient:
         """
         Получение текущей погоды указанного города
 
-        :param city:
+        :param city: str
         :return: float
         """
         try:
@@ -110,10 +102,3 @@ class OpenWeatherClient:
         """
         forecast_data = self.get_forecast(city)
         return forecast_data.get(str(date))
-
-
-if __name__ == '__main__':
-    client = OpenWeatherClient()
-    print(client.get_current_weather("London"))
-    print(client.get_forecast("Moscow"))
-    print(client.get_forecast_by_date("Moscow", "2025-06-10"))

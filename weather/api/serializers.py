@@ -4,8 +4,6 @@ from datetime import datetime
 from django.utils import timezone
 from rest_framework import serializers
 
-from api.models import HandForecasts
-
 
 class CurrentWeatherSerializer(serializers.Serializer):
     city = serializers.CharField()
@@ -23,23 +21,32 @@ class ForecastGetSerializer(serializers.Serializer):
     )
 
     def validate_city(self, value):
+        """
+        Валидация города
+        """
         if not value:
             raise serializers.ValidationError("Обязательное поле: city")
         return value
 
     def validate_date(self, value):
+        """
+        Валидация даты
+        """
         if not value:
             raise serializers.ValidationError("Обязательное поле: date")
+
         if value < timezone.now().date():
             raise serializers.ValidationError("Дата не может быть в прошлом")
+
         delta_days = int(os.getenv("DELTA_DAYS", 10))
         if value > timezone.now().date() + timezone.timedelta(days=delta_days):
             raise serializers.ValidationError(f"Дата не может быть больше {delta_days} дней в будущем")
+
         return value
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret["date"] = str(instance.date.strftime("%Y-%m-%d"))  # преобразуем в нужный формат
+        ret["date"] = str(instance.date.strftime("%Y-%m-%d"))
         return ret
 
 
@@ -55,7 +62,7 @@ class HandForecastUpdateSerializer(serializers.Serializer):
             value = datetime.strptime(value, "%d.%m.%Y").date()
         except ValueError:
             raise serializers.ValidationError("Неверный формат даты. Используйте dd.MM.yyyy")
-        # Проверка прошлого
+
         if value < timezone.now().date():
             raise serializers.ValidationError("Дата не может быть в прошлом")
 
@@ -72,7 +79,6 @@ class HandForecastUpdateSerializer(serializers.Serializer):
 
     def validate(self, data):
         """Валидация взаимосвязи полей"""
-        # Проверка температур
         min_temp = data.get('min_temperature')
         max_temp = data.get('max_temperature')
 

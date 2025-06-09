@@ -1,17 +1,9 @@
-import os
-import sys
 import logging
+import os
 
-import django
-import requests
 import dotenv
-from pathlib import Path
+import requests
 from geopy.geocoders import Nominatim
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(BASE_DIR))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'weather.settings')
-django.setup()
 
 dotenv.load_dotenv()
 
@@ -69,12 +61,3 @@ class CityTimeClient:
         except requests.RequestException as e:
             logger.error(f"Ошибка соединения: {e}")
             raise CityTimeClientError("Ошибка соединения") from e
-
-
-
-if __name__ == '__main__':
-    client = CityTimeClient()
-    print(client.get_time("London"))
-    print(client.get_time("New York"))
-    print(client.get_time("Moscow"))
-
