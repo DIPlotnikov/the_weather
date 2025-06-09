@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -17,7 +18,7 @@ class CurrentWeatherView(APIView):
     Представление для получения текущей погоды
     """
 
-    # permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
 
@@ -55,7 +56,7 @@ class CurrentWeatherView(APIView):
 
 
 class ForecastView(APIView):
-    # permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """
